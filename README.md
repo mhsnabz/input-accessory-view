@@ -1,5 +1,5 @@
 # Input Accessory View 
 # Toolbar
 
-![](screen.mov)
+![](screenshoot.gif)
 
