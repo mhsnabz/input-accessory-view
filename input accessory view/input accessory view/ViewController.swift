@@ -187,13 +187,13 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
         
         trash = .init(name: "trash")
         trash.contentMode = .scaleToFill
-        let trashGes = UITapGestureRecognizer(target: self, action:  #selector (cancel(_:)))
+        let trashGes = UITapGestureRecognizer(target: self, action:  #selector (removeRecordedAudio(_:)))
         trash.addGestureRecognizer(trashGes)
         v.addSubview(trash)
         trash.anchor(top: nil, left: nil, bottom: nil, rigth: sendRecordedAuido.leftAnchor, marginTop: 0, marginLeft: 2, marginBottom: 0, marginRigth: 2, width: 45, heigth: 45)
         
         v.addSubview(recording)
-        recording.anchor(top: nil, left: playPause.rightAnchor, bottom: nil, rigth: trash.leftAnchor, marginTop: 0, marginLeft: 8, marginBottom: 0, marginRigth: 8, width: 0, heigth: 43)
+        recording.anchor(top: nil, left: playPause.rightAnchor, bottom: nil, rigth: trash.leftAnchor, marginTop: 0, marginLeft: 8, marginBottom: 0, marginRigth: 8, width: 0, heigth: 35)
         recording.centerYAnchor.constraint(equalTo: v.centerYAnchor).isActive = true
         
         return v
@@ -397,22 +397,14 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
                 },completion:{ (isShow) in
                     if isShow{
                         self.recordProgres.removeFromSuperview()
-                        
+                         self.recording.currentProgress = 0
                         self.view.addSubview(self.playProgress)
                         self.playProgress.anchor(top: nil, left: self.view.leftAnchor, bottom: self.view.bottomAnchor, rigth: self.view.rightAnchor, marginTop: 0, marginLeft: 10, marginBottom: 5, marginRigth: 10, width: 0, heigth: 45)
                         
                         self.textField.resignFirstResponder()
                         let bottom = CGAffineTransform(translationX: 0, y: -1 * (self.inputAccessoryView?.frame.height)!)
                         UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
-                            self.playProgress.transform = bottom
-                            
-                        },completion:{ (isShow) in
-                            if isShow{
-                                
-                                
-                                
-                            }
-                        })
+                            self.playProgress.transform = bottom },completion:nil)
                     }
                 })
                 
@@ -457,11 +449,38 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
             }
         })
     }
-    
+    @objc func removeRecordedAudio(_ sender:UITapGestureRecognizer)
+    {
+        trash.play(fromFrame: 0, toFrame: 114, loopMode: .none) { (deleted) in
+             let top = CGAffineTransform(translationX: 0, y: (self.inputAccessoryView?.frame.height)!)
+                         UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                             self.playProgress.transform = top
+                             
+                         },completion:{ (isShow) in
+                             if isShow{
+                                 self.playProgress.removeFromSuperview()
+                                self.showRecordMenu()
+                             }
+                         })
+        }
+       
+    }
     @objc func sendRecordedSound(_ sender:UITapGestureRecognizer){
-        sendRecordedAuido.play()
-        sendRecordedAuido.loopMode = .loop
-        sendRecordedAuido.animationSpeed = 1.0
+
+        sendRecordedAuido.animationSpeed = 0.250
+        sendRecordedAuido.play(fromFrame: 0, toFrame: 149, loopMode: .none) { (sent) in
+            let top = CGAffineTransform(translationX: 0, y: (self.inputAccessoryView?.frame.height)!)
+            UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                self.playProgress.transform = top
+                
+            },completion:{ (isShow) in
+                if isShow{
+                    self.playProgress.removeFromSuperview()
+                    self.showRecordMenu()
+                }
+            })
+        }
+      
      }
     
     @objc func videoChoose(_ sender:UITapGestureRecognizer){
@@ -492,7 +511,13 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
             self.customInputView.isHidden = true
         }
     }
-    @objc func playPauseAction(_ sender:UITapGestureRecognizer){ }
+    @objc func playPauseAction(_ sender:UITapGestureRecognizer){
+        self.playPause.play(fromProgress: 0, toProgress: 45, loopMode: .none) { (isPlay) in
+            self.recording.play()
+            self.recording.animationSpeed = 0.1334 //20 seconds
+            
+        }
+    }
 }
 
 class CustomView: UIView {
