@@ -13,6 +13,9 @@ import MobileCoreServices
 
 class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavigationControllerDelegate ,AVAudioRecorderDelegate,AVAudioPlayerDelegate {
     
+    //MARK: - variables
+    var isRecording : Bool = false
+    
     //MARK:- keyboard
     var customInputView: UIView!
     var sendButton: UIButton!
@@ -92,6 +95,59 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
          
          return v
      }()
+    //MARK: - record menu
+        lazy var recordProgres : UIView = {
+            let v = UIView()
+            v.backgroundColor = .white
+            v.clipsToBounds = true
+            v.layer.cornerRadius = 10
+            v.layer.shadowColor = UIColor.black.cgColor
+            v.layer.shadowOpacity = 1
+            v.layer.shadowOffset = .zero
+            v.layer.shadowRadius = 10
+            v.layer.shadowPath = UIBezierPath(rect: v.bounds).cgPath
+            v.layer.shouldRasterize = true
+            v.layer.rasterizationScale = UIScreen.main.scale
+            
+            record.animation = Animation.named("recordBtn")
+            let recordChoose = UITapGestureRecognizer(target: self, action:  #selector (recordBtn(_:)))
+            record.addGestureRecognizer(recordChoose)
+            
+            v.addSubview(record)
+            record.anchor(top: nil, left: v.leftAnchor, bottom: nil, rigth: nil, marginTop: 0, marginLeft: 12, marginBottom: 0, marginRigth: 0, width: 40, heigth: 40)
+            record.centerYAnchor.constraint(equalTo: v.centerYAnchor).isActive = true
+            
+            
+            recording = .init(name: "recording")
+            
+            recording.contentMode = .scaleToFill
+            
+            
+            var cancel = AnimationView()
+            cancel = .init(name: "down")
+            let dismiss = UITapGestureRecognizer(target: self, action:  #selector (dismissRecordProgress(_:)))
+            cancel.addGestureRecognizer(dismiss)
+            
+            
+            v.addSubview(cancel)
+            
+            cancel.anchor(top: nil, left: nil, bottom: nil, rigth: v.rightAnchor, marginTop: 0, marginLeft: 0, marginBottom: 0, marginRigth: 8, width: 40, heigth: 40)
+            cancel.centerYAnchor.constraint(equalTo: v.centerYAnchor).isActive = true
+            
+    //
+    //        trash = .init(name: "trash")
+    //        trash.contentMode = .scaleToFill
+    //        let trashGes = UITapGestureRecognizer(target: self, action:  #selector (cancel(_:)))
+    //        trash.addGestureRecognizer(trashGes)
+    //        v.addSubview(trash)
+    //        trash.anchor(top: nil, left: nil, bottom: nil, rigth: cancel.leftAnchor, marginTop: 0, marginLeft: 2, marginBottom: 0, marginRigth: 2, width: 45, heigth: 45)
+            
+            v.addSubview(recording)
+            recording.anchor(top: nil, left: record.rightAnchor, bottom: nil, rigth: cancel.leftAnchor, marginTop: 0, marginLeft: 8, marginBottom: 0, marginRigth: 8, width: 0, heigth: 43)
+            recording.centerYAnchor.constraint(equalTo: v.centerYAnchor).isActive = true
+            
+            return v
+        }()
     override var inputAccessoryView: UIView?{
         if customInputView == nil {
             customInputView = CustomView()
@@ -208,52 +264,7 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
     }
     
     @objc func showMenu(){
-        showMenuView()
-    }
-    
-    
-    //MARK: -menu handelers
-    
-    @objc func cancel(_ sender:UITapGestureRecognizer){
-
-    }
-    
-    @objc func videoChoose(_ sender:UITapGestureRecognizer){
-          let imagePickerController = UIImagePickerController()
-          imagePickerController.delegate = self
-          imagePickerController.allowsEditing = true
-          let type = String(kUTTypeMovie)
-          
-          imagePickerController.mediaTypes = [type]
-          self.present(imagePickerController, animated: true) {
-              self.customInputView.isHidden = true
-          }
-      }
-      @objc func sendSound(_ sender:UITapGestureRecognizer){
-
-    
-      }
-      @objc func locaitonChoose(_ sender:UITapGestureRecognizer){
-          print("locaitonChoose ")
-      }
-      
-      @objc func imageChoose(_ sender:UITapGestureRecognizer){
-          let imagePickerController = UIImagePickerController()
-          imagePickerController.delegate = self
-          imagePickerController.allowsEditing = true
-          let type = String(kUTTypeImage)
-          imagePickerController.mediaTypes = [type]
-          self.present(imagePickerController, animated: true) {
-              self.customInputView.isHidden = true
-          }
-      }
-      @objc func playPauseAction(_ sender:UITapGestureRecognizer){ }
-    
-    
-    //MARK: -animation handlers
-    
-    private func showMenuView()
-    {
+       
         self.view.addSubview(self.menu)
         self.menu.anchor(top: nil, left: self.view.leftAnchor, bottom: self.view.bottomAnchor, rigth: self.view.rightAnchor, marginTop: 0, marginLeft: 10, marginBottom: 5, marginRigth: 10, width: 0, heigth: 45)
         textField.resignFirstResponder()
@@ -282,10 +293,137 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
                  }
              })
     }
-    private func showViewDismissOtherView(view_one : UIView , view_two : UIView)
-    {
-        
+    
+    func showRecordMenu(){
+        view.addSubview(recordProgres)
+              recordProgres.anchor(top: nil, left: view.leftAnchor, bottom: view.bottomAnchor, rigth: view.rightAnchor, marginTop: 0, marginLeft: 10, marginBottom: 5, marginRigth: 10, width: 0, heigth: 45)
+              let top = CGAffineTransform(translationX: 0, y: (self.inputAccessoryView?.frame.height)!)
+              UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                  self.menu.transform = top
+                  
+              },completion:{ (isShow) in
+                  if isShow{
+                      self.textField.resignFirstResponder()
+                      let bottom = CGAffineTransform(translationX: 0, y: -1 * (self.inputAccessoryView?.frame.height)!)
+                      UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                          self.recordProgres.transform = bottom
+                          
+                      },completion:{ (isShow) in
+                          if isShow{
+                            self.menu.removeFromSuperview()
+                          }
+                      })
+                  }
+              })
     }
+    @objc func recordBtn(_ sender:UITapGestureRecognizer){
+        
+        
+        if !isRecording {
+            
+            record.play(fromProgress: 0, toProgress: 100, loopMode: .none, completion: nil)
+
+            record.animationSpeed = 1.5
+            recording.play()
+            recording.animationSpeed = 0.1334 //20 seconds
+     
+            print("start reccording")
+            
+        }else {
+    
+
+            record.play(fromProgress: 100, toProgress: 0, loopMode: .none) { (showPlayProgress) in
+             
+      
+                
+            }
+            
+          
+            isRecording = false
+            record.animationSpeed = 1.5
+            recording.pause()
+            recording.animationSpeed = 0.1334 //20 seconds
+      
+            print("recording stop")
+            
+            
+        }
+       
+    }
+    @objc func dismissRecordProgress(_ sender:UITapGestureRecognizer){
+          let top = CGAffineTransform(translationX: 0, y: (self.inputAccessoryView?.frame.height)!)
+                 UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                     self.recordProgres.transform = top
+                     
+                 },completion:{ (isShow) in
+                     if isShow{
+                        self.showMenu()
+                        self.recordProgres.removeFromSuperview()
+//                         self.recordProgres.removeFromSuperview()
+//                      self.textField.resignFirstResponder()
+//                            let bottom = CGAffineTransform(translationX: 0, y: -1 * (self.inputAccessoryView?.frame.height)!)
+//                            UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+//                                self.menu.transform = bottom
+//                                
+//                            },completion:{ (isShow) in
+//                                if isShow{
+//                                    
+//                                    
+//                                }
+//                            })
+                     }
+                 })
+
+        }
+    //MARK: -menu handelers
+    
+    @objc func cancel(_ sender:UITapGestureRecognizer){
+        let top = CGAffineTransform(translationX: 0, y: (self.inputAccessoryView?.frame.height)!)
+            UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                self.menu.transform = top
+                
+            },completion:{ (isShow) in
+                if isShow{
+                    self.menu.removeFromSuperview()
+                }
+            })
+    }
+    
+    @objc func videoChoose(_ sender:UITapGestureRecognizer){
+          let imagePickerController = UIImagePickerController()
+          imagePickerController.delegate = self
+          imagePickerController.allowsEditing = true
+          let type = String(kUTTypeMovie)
+          
+          imagePickerController.mediaTypes = [type]
+          self.present(imagePickerController, animated: true) {
+              self.customInputView.isHidden = true
+          }
+      }
+      @objc func sendSound(_ sender:UITapGestureRecognizer){
+        showRecordMenu()
+      }
+      @objc func locaitonChoose(_ sender:UITapGestureRecognizer){
+          print("locaitonChoose ")
+      }
+      
+      @objc func imageChoose(_ sender:UITapGestureRecognizer){
+          let imagePickerController = UIImagePickerController()
+          imagePickerController.delegate = self
+          imagePickerController.allowsEditing = true
+          let type = String(kUTTypeImage)
+          imagePickerController.mediaTypes = [type]
+          self.present(imagePickerController, animated: true) {
+              self.customInputView.isHidden = true
+          }
+      }
+      @objc func playPauseAction(_ sender:UITapGestureRecognizer){ }
+    
+    
+    
+    
+   
+    
 
 }
 
