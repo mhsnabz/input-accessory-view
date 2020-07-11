@@ -18,16 +18,19 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
     var sendButton: UIButton!
     var addMediaButtom: UIButton!
     let textField = FlexibleTextView()
-    
-    
-
-    
 
     //MARK: -menu variables
     var record = AnimationView()
      var recording = AnimationView()
      var trash = AnimationView()
       var playPause = AnimationView()
+    
+    var image = AnimationView()
+       var video = AnimationView()
+             var sound = AnimationView()
+             var location = AnimationView()
+    var cancel = AnimationView()
+
            //MARK: -toolbar menu
      lazy var menu : UIView = {
          let v = UIView()
@@ -42,47 +45,41 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
          v.layer.shouldRasterize = true
          v.layer.rasterizationScale = UIScreen.main.scale
          
-         var image = AnimationView()
+         
          image = .init(name: "image")
          let imageChoose = UITapGestureRecognizer(target: self, action:  #selector (imageChoose (_:)))
          image.addGestureRecognizer(imageChoose)
-         image.play()
-         image.loopMode = .loop
-         image.animationSpeed = 1
+       
          
          
-         var video = AnimationView()
+      
          video = .init(name: "vv")
          let videoChoose = UITapGestureRecognizer(target: self, action:  #selector (videoChoose(_:)))
          video.addGestureRecognizer(videoChoose)
-         video.play()
-         video.loopMode = .loop
-         video.animationSpeed = 1
          
          
-         var sound = AnimationView()
+         
+
          sound = .init(name: "sound")
          let soundChoose = UITapGestureRecognizer(target: self, action:  #selector (sendSound(_:)))
          sound.addGestureRecognizer(soundChoose)
          sound.play()
-         sound.loopMode = .loop
-         sound.animationSpeed = 1
+        
          
          
-         var location = AnimationView()
+
          location = .init(name: "location")
          let locationChoose = UITapGestureRecognizer(target: self, action:  #selector (locaitonChoose(_:)))
          location.addGestureRecognizer(locationChoose)
          location.play()
-         location.loopMode = .loop
-         location.animationSpeed = 1
-         var cancel = AnimationView()
+         
+        
+        
          cancel = .init(name: "cancel")
          let dismiss = UITapGestureRecognizer(target: self, action:  #selector (cancel(_:)))
          cancel.addGestureRecognizer(dismiss)
          cancel.play()
-         cancel.loopMode = .loop
-         cancel.animationSpeed = 0.50
+      
          let stack = UIStackView(arrangedSubviews: [image,video,sound,location,cancel])
          stack.alignment = .center
          stack.distribution = .fillEqually
@@ -196,7 +193,9 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .black
+        //dismis keyboard when ckick on view
+        hideKeyboardWhenTappedAround()
     }
     
     override var canBecomeFirstResponder: Bool {  return true  }
@@ -209,7 +208,7 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
     }
     
     @objc func showMenu(){
-        
+        showMenuView()
     }
     
     
@@ -250,6 +249,43 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
       }
       @objc func playPauseAction(_ sender:UITapGestureRecognizer){ }
     
+    
+    //MARK: -animation handlers
+    
+    private func showMenuView()
+    {
+        self.view.addSubview(self.menu)
+        self.menu.anchor(top: nil, left: self.view.leftAnchor, bottom: self.view.bottomAnchor, rigth: self.view.rightAnchor, marginTop: 0, marginLeft: 10, marginBottom: 5, marginRigth: 10, width: 0, heigth: 45)
+        textField.resignFirstResponder()
+             let bottom = CGAffineTransform(translationX: 0, y: -1 * (self.inputAccessoryView?.frame.height)!)
+             UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                 self.menu.transform = bottom
+                 
+             },completion:{ (isShow) in
+                 if isShow{
+                        self.image.play()
+                        self.image.loopMode = .repeat(2)
+                        self.image.animationSpeed = 1.0
+                        self.image.loopMode = .repeat(2)
+                        self.video.play()
+                        self.video.animationSpeed = 1.0
+                        self.video.loopMode = .repeat(2)
+                        self.sound.play()
+                        self.sound.loopMode = .repeat(2)
+                        self.sound.animationSpeed = 1.0
+                        self.location.play()
+                        self.location.loopMode = .repeat(2)
+                        self.location.animationSpeed = 1.0
+                        self.cancel.play()
+                        self.cancel.loopMode = .repeat(2)
+                        self.cancel.animationSpeed = 1.0
+                 }
+             })
+    }
+    private func showViewDismissOtherView(view_one : UIView , view_two : UIView)
+    {
+        
+    }
 
 }
 
