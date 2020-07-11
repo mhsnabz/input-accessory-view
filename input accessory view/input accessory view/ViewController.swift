@@ -16,11 +16,7 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
     //MARK: - variables
     var isRecording : Bool = false
     
-    //MARK:- keyboard
-    var customInputView: UIView!
-    var sendButton: UIButton!
-    var addMediaButtom: UIButton!
-    let textField = FlexibleTextView()
+
 
     //MARK: -menu variables
     var record = AnimationView()
@@ -148,6 +144,64 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
             
             return v
         }()
+    //MARK: -play progress
+    lazy var playProgress : UIView = {
+         let v = UIView()
+         v.backgroundColor = .white
+         v.clipsToBounds = true
+         v.layer.cornerRadius = 10
+         v.layer.shadowColor = UIColor.black.cgColor
+         v.layer.shadowOpacity = 1
+         v.layer.shadowOffset = .zero
+         v.layer.shadowRadius = 10
+         v.layer.shadowPath = UIBezierPath(rect: v.bounds).cgPath
+         v.layer.shouldRasterize = true
+         v.layer.rasterizationScale = UIScreen.main.scale
+         
+         playPause.animation = Animation.named("play-pause")
+         let recordChoose = UITapGestureRecognizer(target: self, action:  #selector (playPauseAction(_:)))
+         playPause.addGestureRecognizer(recordChoose)
+         v.addSubview(playPause)
+         playPause.anchor(top: nil, left: v.leftAnchor, bottom: nil, rigth: nil, marginTop: 0, marginLeft: 12, marginBottom: 0, marginRigth: 0, width: 40, heigth: 40)
+         playPause.centerYAnchor.constraint(equalTo: v.centerYAnchor).isActive = true
+         
+         
+         recording = .init(name: "recording")
+         
+         recording.contentMode = .scaleToFill
+         
+         
+         var cancel = AnimationView()
+         cancel = .init(name: "down")
+         let dismiss = UITapGestureRecognizer(target: self, action:  #selector (cancel(_:)))
+         cancel.addGestureRecognizer(dismiss)
+         
+         
+         v.addSubview(cancel)
+         
+         cancel.anchor(top: nil, left: nil, bottom: nil, rigth: v.rightAnchor, marginTop: 0, marginLeft: 0, marginBottom: 0, marginRigth: 8, width: 40, heigth: 40)
+         cancel.centerYAnchor.constraint(equalTo: v.centerYAnchor).isActive = true
+         
+         
+         trash = .init(name: "trash")
+         trash.contentMode = .scaleToFill
+         let trashGes = UITapGestureRecognizer(target: self, action:  #selector (cancel(_:)))
+         trash.addGestureRecognizer(trashGes)
+         v.addSubview(trash)
+         trash.anchor(top: nil, left: nil, bottom: nil, rigth: cancel.leftAnchor, marginTop: 0, marginLeft: 2, marginBottom: 0, marginRigth: 2, width: 45, heigth: 45)
+         
+         v.addSubview(recording)
+         recording.anchor(top: nil, left: playPause.rightAnchor, bottom: nil, rigth: trash.leftAnchor, marginTop: 0, marginLeft: 8, marginBottom: 0, marginRigth: 8, width: 0, heigth: 43)
+         recording.centerYAnchor.constraint(equalTo: v.centerYAnchor).isActive = true
+         
+         return v
+     }()
+    
+    //MARK:- keyboard
+    var customInputView: UIView!
+    var sendButton: UIButton!
+    var addMediaButtom: UIButton!
+    let textField = FlexibleTextView()
     override var inputAccessoryView: UIView?{
         if customInputView == nil {
             customInputView = CustomView()
@@ -330,11 +384,35 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
             print("start reccording")
             
         }else {
-    
+       print("stop reccording")
 
             record.play(fromProgress: 100, toProgress: 0, loopMode: .none) { (showPlayProgress) in
              
-      
+      let top = CGAffineTransform(translationX: 0, y: (self.inputAccessoryView?.frame.height)!)
+                        UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                            self.recordProgres.transform = top
+                            
+                        },completion:{ (isShow) in
+                            if isShow{
+                                self.recordProgres.removeFromSuperview()
+
+                            self.view.addSubview(self.playProgress)
+                            self.playProgress.anchor(top: nil, left: self.view.leftAnchor, bottom: self.view.bottomAnchor, rigth: self.view.rightAnchor, marginTop: 0, marginLeft: 20, marginBottom: 5, marginRigth: 20, width: self.view.frame.width, heigth: 45)
+                                
+                                self.textField.resignFirstResponder()
+                                       let bottom = CGAffineTransform(translationX: 0, y: -1 * (self.inputAccessoryView?.frame.height)!)
+                                       UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
+                                           self.playProgress.transform = bottom
+                                           
+                                       },completion:{ (isShow) in
+                                           if isShow{
+                                               
+                                               
+                                               
+                                           }
+                                       })
+                            }
+                        })
                 
             }
             
@@ -359,18 +437,7 @@ class ViewController: UIViewController , UIImagePickerControllerDelegate,UINavig
                      if isShow{
                         self.showMenu()
                         self.recordProgres.removeFromSuperview()
-//                         self.recordProgres.removeFromSuperview()
-//                      self.textField.resignFirstResponder()
-//                            let bottom = CGAffineTransform(translationX: 0, y: -1 * (self.inputAccessoryView?.frame.height)!)
-//                            UIView.animate(withDuration: 0.4, delay: 0.0, options: [], animations: {
-//                                self.menu.transform = bottom
-//                                
-//                            },completion:{ (isShow) in
-//                                if isShow{
-//                                    
-//                                    
-//                                }
-//                            })
+//
                      }
                  })
 
